@@ -52,8 +52,6 @@ if __name__ == "__main__":
     assert lucas(7) == 29
 
     for i in range(7):
-        assert sum_series(n) == fibonacci(n)
-        assert sum_series(n, 2, 1) == lucas(n)
-    
+        assert sum_series(i) == fibonacci(i)
+        assert sum_series(i, 2, 1) == lucas(i)
     print ("All Tests Pass")
-
