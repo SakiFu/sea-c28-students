@@ -21,9 +21,14 @@ def lucas(n):
 
 
 def sum_series(n, m=0, r=1):
-    sum_series(n) == fibonacci(n)
-    sum_series(n, 2, 1) == lucas(n)
-    return sum_series(n - 2) + sum_series(n - 1)
+    """Generalize fibonacci and lucas so that the 0th and 1th number can
+     take arbituary value."""
+    if n == 0:
+        return m
+    if n == 1:
+        return r
+    else:
+        return sum_series(n - 2, m, r) + sum_series(n - 1, m, r)
 
 
 if __name__ == "__main__":
