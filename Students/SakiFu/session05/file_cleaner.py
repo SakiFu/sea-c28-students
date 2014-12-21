@@ -2,7 +2,7 @@
 
 import sys
 
-filename = sherlock_sam.txt
+filename = sys.argv[1]
 new_file = sys.argv[2]
 
 input = raw_input("A: Create a new file or B: Overwrite \
@@ -12,6 +12,7 @@ input = raw_input("A: Create a new file or B: Overwrite \
 def clean(line):
     return line.strip(' ')
 
+#map
 #Create a new file
 if input == 'A':
     f = open(filename, "r")
@@ -29,7 +30,8 @@ if input == 'B':
     f = open(filename, "w")
     f.writelines(new_lines)
 
-#list_comprehention
+#List comprehention
+#Create a new file
 if input == 'A':
     f = open(filename, "r")
     lines = f.readlines()
@@ -37,9 +39,11 @@ if input == 'A':
     f = open(new_file, "w")
     f.writelines(new_lines)
 
+#Overwrite the existing one
+
 if input == 'B':
     f = open(filename, "r")
     lines = f.readlines()
-    new_lines = map(clean, lines)
+    new_lines = [clean(x) for x in lines]
     f = open(filename, "w")
     f.writelines(new_lines)
