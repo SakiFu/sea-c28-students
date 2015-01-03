@@ -9,38 +9,47 @@ class Element(object):
         else:
             self.content = []
         if kwargs:
-            for k, v in kwargs.items():
-                self.attr = '{0}{1} = "{2}"'.format(self.attr, k, v)
-
-    def append(self, str_):
-        self.content.append(str_)
-
-    def render(self, file_out, ind=indent):
-        if self.attr:
-            file_out.write("{0}<{1}{2}>\n".format(
-                           self.indent, self.tag, self.attr))
+            self.attr = kwargs
         else:
-            file_out.write("{0}<{1}>\n".format(
-                           self.indent, self.tag,))
+            self.attr = None
+
+    def append(self, str):
+        self.content.append(str)
+
+    def render(self, file_out, indent=""):
+        if self.attr:
+            attrs = [""]
+            for attr in self.attr:
+                attrs.append('{0}="{1}"'.format(attr, self.attr[attr]))
+            attr = " ".join(attrs)
+        else:
+            attr = ""
+        file_out.write("{0}{1}<{2}{3}>\n".format(indent, self.indent,
+                                                 self.tag, attr))
         for line in self.content:
             try:
-                line.render(file_out, ind + self.indent)
+                line.render(file_out, indent + self.indent)
             except AttributeError:
-                file_out.write("{0}{1}\n".format(ind, line))
-        file_out.write("{0}</{1}>\n".format(self.indent, self.tag))
+                file_out.write("{0}{1}{2}\n".format(indent,
+                                                    self.indent * 2,
+                                                    line))
+        file_out.write("{0}{1}</{2}>\n".format(indent, self.indent, self.tag))
 
 
 class Html(Element):
     tag = u"html"
 
-    def render(self, file_out, ind=""):
+    def __init__(self, content=None, **kwargs):
+        super(Html, self).__init__(content, **kwargs)
+        self.indent = ""
+
+    def render(self, file_out, indent=""):
         file_out.write(u"<!DOCTYPE html>\n")
-        Element.render(self, file_out, ind)
+        Element.render(self, file_out, indent)
 
 
 class Body(Element):
     tag = u'body'
-    indent = "    "
 
     def __init__(self, content=None, **kwargs):
         super(Body, self).__init__(content, **kwargs)
@@ -48,24 +57,25 @@ class Body(Element):
 
 class P(Element):
     tag = u'p'
-    indent = "        "
 
 
 class Head(Element):
     tag = u'head'
-    indent = "    "
 
 
 class OneLineTag(Element):
-    def render(self, file_out, ind=""):
-        file_out.write("{0}<{1}>".format(ind, self.tag))
-        for content in self.content:
-            file_out.write(content)
-        file_out.write("</{0}>\n".format(self.tag))
+    def __init__(self, content=None, **kwargs):
+        super(OneLineTag, self).__init__(content, **kwargs)
+
+    def render(self, file_out, indent=""):
+        file_out.write("{0}{1}<{2}>{3}</{4}>\n".format(indent,
+                                                       self.indent,
+                                                       self.tag,
+                                                       self.content,
+                                                       self.tag))
 
 
 class H(OneLineTag):
-    indent = "    "
 
     def __init__(self, level, content, **kwargs):
         self.tag = u'h' + str(level)
@@ -74,43 +84,35 @@ class H(OneLineTag):
 
 class Title(OneLineTag):
     tag = u'Title'
-    indent = "        "
 
 
 class SelfClosingTag(Element):
-    def render(self, file_out, ind=""):
-        file_out.write("{0}<{1}>\n".format(ind, self.tag))
+    def render(self, file_out, indent=""):
+        file_out.write("{0}<{1}>\n".format(indent, self.tag))
 
 
 class Hr(SelfClosingTag):
     tag = u'hr'
-    indent = "    "
 
 
 class Br(SelfClosingTag):
     tag = u'br'
-    indent = "    "
 
 
-class A(OneLineTag):
-    tag = u"a"
-    attr = ""
-    indent = "    "
-
+class A(Element):
     def __init__(self, link, content):
-        Element.__init__(self, content, href=link)
+        self.tag = u"a"
+        url = {u"href": link}
+        super(A, self).__init__(content, **url)
 
 
 class Ul(Element):
     tag = u'ul'
-    indent = "    "
 
 
 class Li(Element):
     tag = u'li'
-    indent = "        "
 
 
 class Meta(SelfClosingTag):
     tag = u'meta'
-    indent = "        "
