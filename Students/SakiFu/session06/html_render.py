@@ -1,5 +1,5 @@
 class Element(object):
-    indent = u"  "
+    indent = "  "
     tag = u"html"
     attr = ""
 
@@ -71,14 +71,14 @@ class OneLineTag(Element):
         file_out.write("{0}{1}<{2}>{3}</{4}>\n".format(indent,
                                                        self.indent,
                                                        self.tag,
-                                                       self.content,
+                                                       str(self.content[0]),
                                                        self.tag))
 
 
 class H(OneLineTag):
 
     def __init__(self, level, content, **kwargs):
-        self.tag = u'h' + str(level)
+        self.tag = 'h' + str(level)
         super(H, self).__init__(content=content, **kwargs)
 
 
@@ -87,8 +87,25 @@ class Title(OneLineTag):
 
 
 class SelfClosingTag(Element):
+    def __init__(self, content=None, **kwargs):
+        super(SelfClosingTag, self).__init__(content, **kwargs)
+
     def render(self, file_out, indent=""):
-        file_out.write("{0}<{1}>\n".format(indent, self.tag))
+        if self.attr:
+            attrs = [" "]
+            for attr in self.attr:
+                attrs.append(u'{0}="{1}"'.format(attr, self.attr[attr]))
+            attr = u" ".join(attrs)
+        else:
+            attr = u""
+        file_out.write(
+            "{0}{1}<{2}{3}{4}/>\n".format(indent, self.indent, self.tag, attr, indent)
+             )
+        for line in self.content:
+            try:
+                line.render(file_out, indent + self.indent)
+            except AttributeError:
+                file_out.write(u"{}{}{}\n".format(indent, self.indent, line))
 
 
 class Hr(SelfClosingTag):
