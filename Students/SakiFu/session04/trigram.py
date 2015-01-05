@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
-import io
+from io import open
 import random
 
 
-def get_text():
-    f = io.open('sherlock.txt', 'r')
+def get_text(filename):
+
+    f = open(filename, 'r')
     text = f.readlines()
-    text.punctuation.replace("'", "")
     [x.lower() for x in text]
     text = " ".join(text)
     words = text.split()
@@ -16,8 +16,7 @@ def get_text():
 
 def trigram(words):
     pairs = {}
-
-    for i in range(len(words)):
+    for i in range(len(words) - 2):
         pair = tuple(words[i:i + 2])
         pairs.setdefault(pair, []).append(words[i + 2])
     return pairs
@@ -25,9 +24,17 @@ def trigram(words):
 
 def build_text(words, pairs):
     new_text = []
-    for i in range(len(words)):
+    for i in range(300):
         random_pair = random.sample(pairs, 1)[0]
         nextword = random.sample(pairs[random_pair], 1)[0]
         new_text.extend((" ".join(random_pair), nextword))
+    new_text2 = " ".join(new_text)
+    return new_text2
 
-    new_text = " ".join(new_text)
+
+if __name__ == "__main__":
+    words = get_text('sherlock.txt')
+    pairs = trigram(words)
+    new_text2 = build_text(words, pairs)
+
+    print new_text2
